@@ -130,16 +130,23 @@ protected:
 public:
     void WriteTECHeader(std::fstream&, int, std::string);
     void WriteTECNodeData(std::fstream&);
-    void WriteTECElementData(std::fstream&, int);
+    /**
+     * Write Element connectivity,
+     * @param out outstream for output
+     * @param elem_type Enum of elem_type to print
+     * @param mg_idx Index of Material group to print, Default -1
+     *               if mg_idx<0 elements of all MG are printed
+     */
+    void WriteTECElementData(std::fstream& out, int elem_type, int mg_idx=-1);
     double NODWritePLYDataTEC(int);
     void NODWritePNTDataTEC(double, int);
 public:
     void WriteDOMDataTEC();
 protected:
     void ELEWriteDOMDataTEC(std::string, int, std::string);
+    bool WriteELEValuesTECHeader(std::fstream&, int, std::string,unsigned mg_idx=0,unsigned written=0);
+    void WriteELEValuesTECData(std::fstream&, int, unsigned mg_idx=0,unsigned written=0);
 public:
-    void WriteELEValuesTECHeader(std::fstream&, int, std::string);
-    void WriteELEValuesTECData(std::fstream&, int);
     void NODWriteSFCDataTEC(int);
     void NODWriteSFCAverageDataTEC(double, int);  // OK
     void WriteRFO();                              // OK
@@ -283,6 +290,10 @@ private:
 
     /// Tecplot share zone
     bool tecplot_zone_share;  // 10.2012. WW
+
+    /// Split Tecplot *element* output in zones for each MG
+    /// defaults to false if not tag not present in *.out file
+    bool _tecplot_zones_for_mg;
 
 #if defined(USE_PETSC) || \
     defined(USE_MPI)  //|| defined(other parallel libs)//03.3012. WW
